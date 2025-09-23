@@ -107,6 +107,20 @@ func Update(db *sql.DB) func(c *fiber.Ctx) error {
 
 func Delete(db *sql.DB) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		idParam := c.Params("bookId")
 
+		result, err := db.Exec("DELETE FROM book WHERE id=$1", idParam)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+
+		rowsAffected, _ := result.RowsAffected()
+		if rowsAffected == 0 {
+			return c.Status(fiber.StatusNotFound).SendString("book not found")
+		}
+
+		return c.JSON(fiber.Map{
+			"message": "Book deleted successfully",
+		})
 	}
 }
