@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"strconv"
 
 	"github.com/ParintornYaimai/go-rest-api/api/model"
 	"github.com/gofiber/fiber/v2"
@@ -35,8 +36,28 @@ func GetAllBooks(db *sql.DB) func(c *fiber.Ctx) error {
 	}
 }
 
-func getById(c *fiber.Ctx) {
+func GetById(db *sql.DB) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		idParam := c.Params("bookId")
 
+		id, err := strconv.Atoi(idParam)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid bookId")
+		}
+
+		row := db.QueryRow("SELECT * FROM Book WHERE if = $1", id)
+
+		var b model.BookModel
+		if err := row.Scan(&b.ID, &b.Name, &b.Category); err != nil {
+			if err == sql.ErrNoRows {
+				return c.Status(fiber.StatusNotFound).SendString("Book not found")
+			}
+
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
+		return c.JSON(b)
+	}
 }
 
 func update(c *fiber.Ctx) {

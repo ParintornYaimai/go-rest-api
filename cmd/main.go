@@ -29,9 +29,8 @@ func main() {
 		return c.Status(fiber.StatusOK).SendString("server is ok")
 	})
 
-
 	//route
-	app.Get("/books",handler.GetAllBooks(db))
+	app.Get("/books", handler.GetAllBooks(db))
 
 	log.Fatal(app.Listen(":3000"))
 }
