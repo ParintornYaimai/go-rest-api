@@ -60,10 +60,38 @@ func GetById(db *sql.DB) func(c *fiber.Ctx) error {
 	}
 }
 
-func update(c *fiber.Ctx) {
+func AddBook(db *sql.DB) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
 
+	}
 }
 
-func delete(c *fiber.Ctx) {
+type BookInput struct {
+	Name     string `json:"name"`
+	Category string `json:"category"`
+}
 
+func Update(db *sql.DB) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		idParam := c.Params("bookId")
+
+		var input BookInput
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+
+		var updated model.BookModel
+		err := db.QueryRow("UPDATE book SET Name=$1, Category=$2 WHERE id=$3", input.Name, input.Category, idParam).Scan(&updated.ID, &updated.Name, &updated.Category)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+
+		return c.JSON(updated)
+	}
+}
+
+func Delete(db *sql.DB) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+
+	}
 }

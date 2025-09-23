@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	//สร้าง fiber
 	app := fiber.New()
 
 	connStr := "postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable"
@@ -31,6 +30,10 @@ func main() {
 
 	//route
 	app.Get("/books", handler.GetAllBooks(db))
+	app.Get("/books/:bookId", handler.GetById(db))
+	app.Post("books", handler.AddBook(db))
+	app.Put("/books/:bookId", handler.Update(db))
+	app.Delete("/books/:bookId", handler.Delete(db))
 
 	log.Fatal(app.Listen(":3000"))
 }
