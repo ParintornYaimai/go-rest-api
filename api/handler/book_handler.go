@@ -62,7 +62,22 @@ func GetById(db *sql.DB) func(c *fiber.Ctx) error {
 
 func AddBook(db *sql.DB) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		var input BookInput
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(fiber.StatusBadGateway).SendString(err.Error())
+		}
 
+		var insertId int
+		err := db.QueryRow("INSERT INTO book (name, category) VALUES ($1, $2) RETURNING id", input.Name, input.Category).Scan(&insertId)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
+		return c.JSON(fiber.Map{
+			"id":       insertId,
+			"name":     input.Name,
+			"category": input.Category,
+		})
 	}
 }
 
